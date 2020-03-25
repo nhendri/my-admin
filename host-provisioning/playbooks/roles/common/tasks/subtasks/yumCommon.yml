@@ -1,0 +1,13 @@
+---
+
+  - name: "==> Yum | Packages - All | Updated"
+    yum:
+      name: "*"
+      state: latest
+    become: yes
+  
+  - name: "==> Yum | Packages - Multiple | Present"
+    yum:
+      name: "{{ common_pkgs }}"
+      state: present
+    become: yes

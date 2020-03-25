@@ -1,0 +1,22 @@
+# users.yml
+app_svc_path: "PATH=$PATH:$HOME/.local/bin:$HOME/bin:/usr/local/texlive/2018/bin/x86_64-linux:$HOME/pigknows/bin"
+
+#ntp.yml
+ntp_timezone: "America/New_York"
+
+# yumCommon.yml
+common_pkgs:
+  - cmake
+  - firewalld
+  - gcc
+  - gcc-c++
+  - git-core
+  - libselinux-python
+  - make
+  - ntp
+  - perl
+  - perl-Digest-MD5
+  - unzip
+  - wget
+  - yum-utils
+  - zip

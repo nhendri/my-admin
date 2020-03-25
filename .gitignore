@@ -1,0 +1,5 @@
+## Directories
+monitoring-stack/data/*
+
+## Specific files
+.env

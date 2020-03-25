@@ -1,0 +1,10 @@
+---
+
+  # This play needs to do more down the road - check for py, register success, etc.
+  
+  - name: "==> Docker-Compose | Present"
+    #get_url: 
+    #  url: "https://github.com/docker/compose/releases/download/{{ docker_compose_major_version }}.{{ docker_compose_minor_version }}.{{ docker_compose_patch_version }}/docker-compose-$(uname -s)-$(uname -m)"
+    #  dest: "/usr/local/bin/docker-compose"
+    #  mode: 0755
+    shell: "sudo curl -L \"https://github.com/docker/compose/releases/download/1.23.2/docker-compose-$(uname -s)-$(uname -m)\" -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose"

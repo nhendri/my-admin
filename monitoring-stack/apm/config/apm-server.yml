@@ -1,0 +1,15 @@
+######################### APM Server Configuration #########################
+
+################################ APM Server ################################
+
+apm-server:
+  host: "0.0.0.0:8200"
+
+#-------------------------- Elasticsearch output --------------------------
+output.elasticsearch:
+  hosts: ["elasticsearch:9200"]
+  enabled: true
+  compression_level: 0
+  protocol: "http"
+  username: "elastic"
+  password: ${ELASTIC_PASSWORD}

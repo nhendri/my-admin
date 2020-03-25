@@ -1,0 +1,5 @@
+# SSH Config for Docker Ansible Host to configure SSH Agent Forwarding
+Host *
+    AddKeysToAgent yes
+    IdentityFile ~/.ssh/id_rsa
+    ForwardAgent yes

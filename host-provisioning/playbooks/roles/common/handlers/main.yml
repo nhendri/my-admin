@@ -1,0 +1,13 @@
+---
+  # Handlers for root configuration
+  - name: handler-restart-ssh
+    service: 
+      name: sshd
+      state: restarted
+    become: yes
+  
+  - name: handler-restart-firewall
+    service:
+      name: firewalld
+      state: restarted
+    become: yes

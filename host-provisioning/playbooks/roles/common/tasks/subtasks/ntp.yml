@@ -1,0 +1,7 @@
+---
+
+  - name: ==> NTP | TimeZone | Set
+    remote_user: "{{ ansible_svc }}"
+    timezone:
+      name: "{{ ntp_timezone }}"
+    become: yes  

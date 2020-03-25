@@ -1,0 +1,23 @@
+---
+  ## Default Kibana configuration from Kibana base image.
+  ## https://github.com/elastic/kibana/blob/master/src/dev/build/tasks/os_packages/docker_generator/templates/kibana_yml.template.js
+  #
+  server.name: kibana
+  server.host: "0"
+  elasticsearch.hosts: [ "http://elasticsearch:9200" ]
+  xpack.monitoring.ui.container.elasticsearch.enabled: true
+  
+  ## X-Pack security credentials
+  #
+  elasticsearch.username: elastic
+  
+  ## Elastalert Plugin Host Information
+  elastalert-kibana-plugin.serverHost: elastalert
+  elastalert-kibana-plugin.serverPort: 3030
+  elastalert-kibana-plugin.serverSsl: False
+  
+  ## DISABLE SOME PLUGINS THAT WE DON'T USE FOR NOW
+  xpack.canvas.enabled: False
+  xpack.ml.enabled: False
+  xpack.siem.enabled: False
+  

@@ -1,0 +1,13 @@
+---
+
+  - name: Hosts | Common Configuration | Present
+    hosts: all
+    strategy: free
+    roles:
+      - commonRole
+  
+  - name: Docker-Hosts | DB Role | Present
+    hosts: docker_hosts
+    strategy: free
+    roles:
+    - docker_host

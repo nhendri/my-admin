@@ -1,0 +1,35 @@
+docker_version: ""
+
+docker_edition: "ce"
+
+yum_docker_repo_url: "https://download.docker.com/linux/centos/docker-ce.repo"
+
+yum_docker_old_deps: 
+  - "docker"
+  - "docker-client"
+  - "docker-client-latest"
+  - "docker-common"
+  - "docker-latest"
+  - "docker-latest-logrotate"
+  - "docker-logrotate"
+  - "docker-engine"
+
+yum_docker_dependency_pkgs:
+  - "yum-utils"
+  - "device-mapper-persistent-data"
+  - "lvm2"
+
+yum_docker_pkgs:
+  - "docker-ce"
+  - "docker-ce-cli"
+  - "containerd.io"
+
+yum_docker_pkg_print: "060A 61C5 1B55 8A7F 742B 77AA C52F EB6B 621E 9F35"
+
+# docker_volume_backup_schedule: "30 2 * * *"
+
+docker_volume_path: "/var/lib/docker/volumes"
+
+docker_compose_major_version: 1
+docker_compose_minor_version: 23
+docker_compose_patch_version: 2

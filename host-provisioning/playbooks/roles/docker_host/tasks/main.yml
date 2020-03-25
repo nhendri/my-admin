@@ -1,0 +1,65 @@
+---
+
+  # Steps:
+  #   x Check for presence of existing installation (and decide what to do with it)
+  #   x Configure repo
+  #   x Install packages
+  #   x Start and enable service
+  #   - Configure non-root users
+  #     - Configure usergroup
+  #     - Configure additional users (defined in vars)
+  #   - Install Docker Composer
+  #   - Configure docker volume backup
+  
+  - name: "==> Docker | Host | Accessible"
+    remote_user: "root"
+    ping:
+  
+  - name: "==> Docker | Old Installations | Absent"
+    yum:
+      name: "{{ yum_docker_old_deps }}"
+      state: absent
+  
+  - name: "==> Docker | Prerequisite Packages | Present"
+    yum:
+      name: "{{ yum_docker_dependency_pkgs }}"
+      state: present
+  
+  - name: "==> Docker | Repository | Present And Enabled"
+    block:
+      - name: "==> Docker | Repository GPG Key | Present"
+        rpm_key:
+          key: https://download.docker.com/linux/centos/gpg
+          state: present
+      - name: "==> Docker | Repository | Present"
+        get_url:
+          url: "{{ yum_docker_repo_url }}"
+          dest: "/etc/yum.repos.d/docker-{{ docker_edition }}.repo"
+          owner: root
+          group: root
+          mode: 0644
+  
+  - name: "==> Docker | Packages | Present"
+    yum:
+      name: "{{ yum_docker_pkgs }}"
+      state: present
+  
+  - name: "==> Docker | Service | Started And Enabled"
+    systemd:
+      name: docker
+      state: started
+      enabled: yes
+  
+  - name: "==> Docker | Usergroup | Configured"
+    group:
+      name: docker
+      state: present
+  
+  - name: "==> Docker | Administrative User | Configured"
+    user:
+      name: jenkins
+      groups: docker
+      append: yes
+  
+  - name: "==> Docker | Docker Compose | Present"
+    import_tasks: subtasks/compose.yml

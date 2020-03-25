@@ -1,0 +1,53 @@
+---
+
+  ############ ROOT CONFIG ########################################
+  - name: "User 'root' | Root Config | Status"
+    remote_user: "root"
+    stat:
+      path: /tmp/dwr
+    register: root_complete
+    become: yes
+    ignore_errors: yes
+  
+  - debug:
+      msg: ROOT CONFIG COMPLETE
+    when: root_complete.stat.exists==true
+  
+  - name: "User 'root' | SVC Accounts ==>"
+    remote_user: "root"
+    import_tasks: subtasks/users.yml
+    when: root_complete.stat.exists==false
+  
+  - name: "User 'root' | SSH Config ==>"
+    remote_user: root
+    import_tasks: subtasks/sshConfig.yml
+    when: root_complete.stat.exists==false
+  
+  - name: "User 'root' | Root Config Status | Set"
+    remote_user: "root"
+    file:
+      path: /tmp/dwr
+      state: touch
+      mode: 0600
+    become: yes
+    when: root_complete.stat.exists==false
+  
+  ############ SVC ACCT ADDT'L CONFIG ################################
+  - name: "User '{{ ansible_svc }}' | Yum Common Pkgs ==>"
+    remote_user: "{{ ansible_svc }}"
+    import_tasks: subtasks/yumCommon.yml
+  
+  - name: "User '{{ ansible_svc }}' | SSL Config | Status"
+    remote_user: "{{ ansible_svc }}"
+    shell: openssl version
+    register: openssl_updated
+    ignore_errors: yes
+  
+  - name: "User '{{ ansible_svc }}' | NTP Config ==>"
+    remote_user: "{{ ansible_svc }}"
+    import_tasks: subtasks/ntp.yml
+
+# To Do: Write This Task
+#  - name: "User '{{ ansible_svc }}' | SELinux Config ==>"
+#    remote_user: "{{ ansible_svc }}"
+#    import_tasks: subtasks/selinux.yml

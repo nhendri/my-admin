@@ -1,0 +1,176 @@
+version: '3.2'
+
+services:
+  # PRIMARY STACK
+  elasticsearch:
+    image: $REGISTRY_HOST_NAME:$REGISTRY_HOST_PORT/elasticsearch
+    build:
+      context: elasticsearch/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    volumes:
+      - type: bind
+        source: ./elasticsearch/config/elasticsearch.yml
+        target: /usr/share/elasticsearch/config/elasticsearch.yml
+        read_only: true
+      - type: volume
+        source: elasticsearch_0001
+        target: /usr/share/elasticsearch/data
+    environment:
+      ES_JAVA_OPTS: "-Xms2g -Xmx3g"
+      ELASTIC_PASSWORD: $ELASTIC_PASSWORD
+    restart: unless-stopped
+    networks:
+      - elk_0001
+    depends_on:
+      - nginx
+  kibana:
+    image: $REGISTRY_HOST_NAME:$REGISTRY_HOST_PORT/kibana
+    build:
+      context: kibana/
+      args:
+        ELK_VERSION: $ELK_VERSION
+        ELASTALERT_PLUGIN_VERSION: $ELASTALERT_PLUGIN_VERSION
+    volumes:
+    - type: bind
+      source: ./kibana/config/kibana.yml
+      target: /usr/share/kibana/config/kibana.yml
+      read_only: true
+    environment:
+      ELASTICSEARCH_PASSWORD: $ELASTIC_PASSWORD
+      NODE_OPTIONS: "--max-old-space-size=4096"
+    restart: unless-stopped
+    networks:
+      - elk_0001 
+    depends_on:
+      - nginx
+      - elasticsearch
+  # SECONDARY SERVICES
+  apm:
+    image: $REGISTRY_HOST_NAME:$REGISTRY_HOST_PORT/apm
+    build:
+      context: apm/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    volumes:
+      - type: bind
+        source: ./apm/config/apm-server.yml
+        target: /usr/share/apm-server/apm-server.yml
+        read_only: true
+    ports:
+      - "8200:8200"
+    environment:
+      ELASTIC_PASSWORD: $ELASTIC_PASSWORD
+    restart: unless-stopped
+    networks: 
+      - elk_0001
+    depends_on:
+      - elasticsearch
+  elastalert: 
+    image: $REGISTRY_HOST_NAME:$REGISTRY_HOST_PORT/elastalert
+    build:
+      context: elastalert/
+      args:
+        ELASTALERT_VERSION: $ELASTALERT_VERSION
+        SENDGRID_API_KEY: $SENDGRID_API_KEY
+    volumes:
+      - type: bind
+        source: ./elastalert/config/elastalert.yaml
+        target: /opt/elastalert/config.yaml
+        read_only: true
+      - type: bind
+        source: ./elastalert/config/elastalert-test.yaml
+        target: /opt/elastalert/config-test.yaml
+        read_only: true
+      - type: bind
+        source: ./elastalert/config/config.json
+        target: /opt/elastalert-server/config/config.json
+        read_only: true
+      - type: volume
+        source: elastalert_0001
+        target: /opt/elastalert/rules
+      - type: bind
+        source: ./data/elastalert/rule_templates
+        target: /opt/elastalert/rule_templates
+    ports:
+      - "3030:3030"
+      - "3333:3333"
+    environment:
+      ES_PASSWORD: $ELASTIC_PASSWORD
+    restart: unless-stopped
+    networks:
+      - elk_0001
+    depends_on:
+      - elasticsearch
+  elastichq:
+    image: $REGISTRY_HOST_NAME:$REGISTRY_HOST_PORT/elastichq
+    build:
+      context: elastichq/
+      args:
+        ELASTICHQ_VERSION: $ELASTICHQ_VERSION
+    volumes:
+      - type: bind
+        source: ./data/certs/conf
+        target: /etc/letsencrypt
+    environment:
+      HQ_DEFAULT_URL: http://<USER_GOES_HERE>:<PASSWORD_GOES_HERE>@elasticsearch:9200
+    restart: unless-stopped
+    networks:
+      - elk_0001
+    depends_on:
+      - nginx
+      - elasticsearch
+    
+  # SUPPORT SERVICES
+  nginx:
+    image: $REGISTRY_HOST_NAME:$REGISTRY_HOST_PORT/nginx
+    build:
+      context: nginx/
+      args:
+        NGINX_CONTAINER_VERSION: $NGINX_CONTAINER_VERSION
+    volumes:
+      - type: bind
+        source: ./nginx/config
+        target: /etc/nginx/conf.d
+      - type: bind
+        source: ./data/certs/conf
+        target: /etc/letsencrypt
+      - type: bind
+        source: ./data/certs/www
+        target: /var/www/certbot
+    ports:
+      - "80:80"
+      - "443:443"
+      - "9200:9200"
+      - "5000:5000"
+    restart: unless-stopped
+    networks: 
+      - elk_0001
+  certbot:
+    image: $REGISTRY_HOST_NAME:$REGISTRY_HOST_PORT/certbot
+    build:
+      context: certbot/
+      args:
+        CERTBOT_VERSION: $CERTBOT_VERSION
+    volumes:
+      - type: bind
+        source: ./data/certs/conf
+        target: /etc/letsencrypt
+      - type: bind
+        source: ./data/certs/www
+        target: /var/www/certbot
+    restart: unless-stopped
+    networks: 
+      - elk_0001
+  
+    
+networks:
+  elk_0001:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.6.0.4/24
+
+volumes:
+  elasticsearch_0001:
+  elastalert_0001:

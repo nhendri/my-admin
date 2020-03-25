@@ -1,0 +1,15 @@
+---
+  - name: "==> SSH | Password Login | Disabled"
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: 'PasswordAuthentication yes'
+      line: 'PasswordAuthentication no'
+      backrefs: yes
+    notify: "handler-restart-ssh"
+  
+  - name: "==> SSH | Root Login | Disabled"
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: 'PermitRootLogin yes'
+      line: 'PermitRootLogin no'
+    notify: handler-restart-ssh

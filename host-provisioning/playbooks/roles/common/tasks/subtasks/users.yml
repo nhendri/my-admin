@@ -1,0 +1,37 @@
+---
+  - name: "==> Group | 'Wheel' | Present"
+    group:
+      name: wheel
+      state: present
+  
+  - name: "==> Group | 'Wheel' - Passwordless Sudo | Configured"
+    lineinfile: 
+      dest: /etc/sudoers
+      state: present
+      regexp: '\# \%wheel'
+      line: '%wheel        ALL=(ALL)       NOPASSWD: ALL'
+      backrefs: yes
+    become: yes
+  
+  - name: "==> User | '{{ svc_ansible }}' | Present"
+    user:
+      name: "{{ svc_ansible }}"
+      groups: wheel
+
+  - name: "==> User | '{{ ansible_svc }}' - SSH Key | Present"
+    authorized_key:
+      user: "{{ ansible_svc }}"
+      state: present
+      key: "{{ lookup('file','~/.ssh/id_rsa.pub') }}"
+  
+  - name: "==> User | '{{ admin_sysadmin }}' | Present"
+    user:
+      name: "{{ admin_sysadmin }}"
+      groups: wheel
+    become: yes
+
+  - name: "==> User | '{{ admin_sysadmin }}' - SSH Key | Present"
+    authorized_key:
+      user: "{{ admin_sysadmin }}"
+      state: present
+      key: "{{ lookup('file','~/.ssh/id_rsa.pub') }}"
